@@ -6,9 +6,9 @@ var path = require("path");
 var ejs = require("ejs");
 var bignumber_js_1 = require("bignumber.js");
 var definitions_1 = require("./definitions");
-var bpmn2solEJS = fs.readFileSync(path.join(__dirname, '../../templates') + '/bpmn2sol.ejs', 'utf-8');
+var bpmn2solEJS = fs.readFileSync(path.join(__dirname, "../../templates") + "/bpmn2sol.ejs", "utf-8");
 var bpmn2solTemplate = ejs.compile(bpmn2solEJS);
-var workList2solEJS = fs.readFileSync(path.join(__dirname, '../../templates') + '/workList2sol.ejs', 'utf-8');
+var workList2solEJS = fs.readFileSync(path.join(__dirname, "../../templates") + "/workList2sol.ejs", "utf-8");
 var workList2solTemplate = ejs.compile(workList2solEJS);
 var moddle = new BpmnModdle();
 var parseBpmn = function (bpmnDoc) {
@@ -28,9 +28,9 @@ var collectControlFlowInfo = function (proc, globalNodeMap, globalControlFlowInf
     var boundaryEvents = new Array();
     var nonBlockingBoundaryEvents = new Array();
     var controlFlowInfo;
-    for (var _i = 0, _a = proc.flowElements.filter(function (e) { return is(e, 'bpmn:FlowNode'); }); _i < _a.length; _i++) {
+    for (var _i = 0, _a = proc.flowElements.filter(function (e) { return is(e, "bpmn:FlowNode"); }); _i < _a.length; _i++) {
         var node = _a[_i];
-        if (is(node, 'bpmn:BoundaryEvent')) {
+        if (is(node, "bpmn:BoundaryEvent")) {
             boundaryEvents.push(node.id);
             if (node.cancelActivity == false)
                 nonBlockingBoundaryEvents.push(node.id);
@@ -41,7 +41,9 @@ var collectControlFlowInfo = function (proc, globalNodeMap, globalControlFlowInf
         globalNodeMap.set(node.id, node);
     }
     var sources = nodeList.slice();
-    for (var _b = 0, _c = proc.flowElements.filter(function (e) { return is(e, 'bpmn:SequenceFlow'); }); _b < _c.length; _b++) {
+    for (var _b = 0, _c = proc.flowElements.filter(function (e) {
+        return is(e, "bpmn:SequenceFlow");
+    }); _b < _c.length; _b++) {
         var flowEdge = _c[_b];
         if (sources.indexOf(flowEdge.targetRef.id) > -1) {
             sources.splice(sources.indexOf(flowEdge.targetRef.id), 1);
@@ -89,11 +91,11 @@ var collectControlFlowInfo = function (proc, globalNodeMap, globalControlFlowInf
         var _loop_1 = function (eventId) {
             var event = globalNodeMap.get(eventId);
             if (!mainPathNodeList.find(function (e) { return event.attachedToRef.id === e; })) {
-                throw new Error('ERROR: Found non-interrupting event which is not attached to a subprocess in the main process path');
+                throw new Error("ERROR: Found non-interrupting event which is not attached to a subprocess in the main process path");
             }
             var _a = dfs([eventId]), localNodeList = _a[0], localEdgeList = _a[1];
             if (mainPathNodeList.filter(function (nodeId) { return localNodeList.indexOf(nodeId) >= 0; }).length > 0)
-                throw new Error('ERROR: Non-interrupting event outgoing path is not synchronized and merges with main process path');
+                throw new Error("ERROR: Non-interrupting event outgoing path is not synchronized and merges with main process path");
             // Let us remove all source elements from the node list
             localNodeList = localNodeList.filter(function (node) { return sources.indexOf(node) < 0; });
             var childControlFlowInfo = new definitions_1.ControlFlowInfo(event, localNodeList, localEdgeList, [eventId], []);
@@ -109,12 +111,15 @@ var collectControlFlowInfo = function (proc, globalNodeMap, globalControlFlowInf
         controlFlowInfo = new definitions_1.ControlFlowInfo(proc, nodeList, edgeList, sources, boundaryEvents);
         globalControlFlowInfo.push(controlFlowInfo);
     }
-    for (var _g = 0, _h = proc.flowElements.filter(function (e) { return is(e, 'bpmn:SubProcess'); }); _g < _h.length; _g++) {
+    for (var _g = 0, _h = proc.flowElements.filter(function (e) {
+        return is(e, "bpmn:SubProcess");
+    }); _g < _h.length; _g++) {
         var subprocess = _h[_g];
         var subprocessControlFlowInfo = collectControlFlowInfo(subprocess, globalNodeMap, globalControlFlowInfo);
         subprocessControlFlowInfo.parent = proc;
         if (!(subprocess.loopCharacteristics &&
-            subprocess.loopCharacteristics.$type === 'bpmn:MultiInstanceLoopCharacteristics')) {
+            subprocess.loopCharacteristics.$type ===
+                "bpmn:MultiInstanceLoopCharacteristics")) {
             // Subprocess is embedded ... then copy all nodes and edges to the parent process
             subprocessControlFlowInfo.isEmbedded = true;
             controlFlowInfo.nodeList = controlFlowInfo.nodeList.concat(subprocessControlFlowInfo.nodeList);
@@ -128,28 +133,28 @@ var collectControlFlowInfo = function (proc, globalNodeMap, globalControlFlowInf
 };
 var extractParameters = function (cad, nodeId, controlFlowInfo) {
     // Extracting Information of Oracle from Service Tasks (if aplicable)
-    var oracle_Data = '';
+    var oracle_Data = "";
     // Processing Information of function parameters (both service and user tasks)
     cad = cad
-        .replace('(', ' ')
-        .replace(')', ' ')
+        .replace("(", " ")
+        .replace(")", " ")
         .trim();
     cad = cad
-        .replace('(', ' ')
-        .replace(')', ' ')
+        .replace("(", " ")
+        .replace(")", " ")
         .trim();
-    var firstSplit = cad.split(':');
-    var secondSplit = firstSplit[firstSplit.length - 1].trim().split('->');
+    var firstSplit = cad.split(":");
+    var secondSplit = firstSplit[firstSplit.length - 1].trim().split("->");
     var resMap = new Map();
     var inputOutput = [firstSplit[0].trim(), secondSplit[0].trim()];
-    var parameterType = ['input', 'output'];
+    var parameterType = ["input", "output"];
     var bodyString = secondSplit[secondSplit.length - 1].trim();
-    resMap.set('body', [secondSplit[secondSplit.length - 1].trim()]);
+    resMap.set("body", [secondSplit[secondSplit.length - 1].trim()]);
     for (var i = 0; i < inputOutput.length; i++) {
-        var temp = inputOutput[i].split(',');
+        var temp = inputOutput[i].split(",");
         var res = [];
         temp.forEach(function (subCad) {
-            var aux = subCad.trim().split(' ');
+            var aux = subCad.trim().split(" ");
             if (aux[0].trim().length > 0) {
                 res.push(aux[0].trim());
                 res.push(aux[aux.length - 1].trim());
@@ -160,16 +165,16 @@ var extractParameters = function (cad, nodeId, controlFlowInfo) {
     // Updating Information of Oracle in controlFlowInfo
     if (controlFlowInfo != null) {
         var parameters = new Array();
-        var toIterate = resMap.get('input');
+        var toIterate = resMap.get("input");
         for (var i = 0; i < toIterate.length; i += 2)
             parameters.push(new definitions_1.ParameterInfo(toIterate[i], toIterate[i + 1]));
         if (oracle_Data.length > 0) {
-            oracle_Data = oracle_Data = oracle_Data.trim().replace(' ', '_');
+            oracle_Data = oracle_Data = oracle_Data.trim().replace(" ", "_");
             oracle_Data = oracle_Data
-                .replace('(', ' ')
-                .replace(').', ' ')
+                .replace("(", " ")
+                .replace(").", " ")
                 .trim();
-            var splitResult = oracle_Data.split(' ');
+            var splitResult = oracle_Data.split(" ");
             if (!controlFlowInfo.oracleInfo.has(splitResult[0])) {
                 controlFlowInfo.oracleInfo.set(splitResult[0], new definitions_1.OracleInfo(splitResult[0]));
             }
@@ -184,19 +189,21 @@ var extractParameters = function (cad, nodeId, controlFlowInfo) {
     }
     return resMap;
 };
-var getNodeName = function (node) { return (node.name ? node.name.replace(/\s+/g, '_') : node.id); };
+var getNodeName = function (node) {
+    return node.name ? node.name.replace(/\s+/g, "_") : node.id;
+};
 exports.parseModel = function (modelInfo) {
     return new Promise(function (resolve, reject) {
         parseBpmn(modelInfo.bpmn)
             .then(function (definitions) {
-            modelInfo.solidity = 'pragma solidity ^0.4.14;\n';
+            modelInfo.solidity = "pragma solidity ^0.4.14;\n";
             modelInfo.controlFlowInfoMap = new Map();
             // Sanity checks
             if (!definitions.diagrams || definitions.diagrams.length == 0)
-                throw new Error('ERROR: No diagram found in BPMN file');
+                throw new Error("ERROR: No diagram found in BPMN file");
             var proc = definitions.diagrams[0].plane.bpmnElement;
-            if (proc.$type !== 'bpmn:Process')
-                throw new Error('ERROR: No root process model found');
+            if (proc.$type !== "bpmn:Process")
+                throw new Error("ERROR: No root process model found");
             // BPMN to Solidity parsing
             var globalNodeMap = new Map(), globalNodeIndexMap = new Map(), globalEdgeIndexMap = new Map(), globalControlFlowInfo = new Array();
             globalNodeMap.set(proc.id, proc);
@@ -224,9 +231,10 @@ exports.parseModel = function (modelInfo) {
                 indexesToRemove.forEach(function (index) {
                     controlFlowInfo.sources.splice(index, 1);
                 });
-                if (is(globalNodeMap.get(controlFlowInfo.self.id), 'bpmn:SubProcess') &&
+                if (is(globalNodeMap.get(controlFlowInfo.self.id), "bpmn:SubProcess") &&
                     controlFlowInfo.self.triggeredByEvent &&
-                    globalNodeMap.get(controlFlowInfo.sources[0]).isInterrupting == false) {
+                    globalNodeMap.get(controlFlowInfo.sources[0]).isInterrupting ==
+                        false) {
                     controlFlowInfo.isEmbedded = false;
                 }
             };
@@ -239,13 +247,13 @@ exports.parseModel = function (modelInfo) {
             }
             var hasExternalCall = function (nodeId) {
                 var node = globalNodeMap.get(nodeId);
-                return (is(node, 'bpmn:UserTask') ||
-                    is(node, 'bpmn:ServiceTask') ||
-                    is(node, 'bpmn:ReceiveTask') ||
+                return (is(node, "bpmn:UserTask") ||
+                    is(node, "bpmn:ServiceTask") ||
+                    is(node, "bpmn:ReceiveTask") ||
                     (node.eventDefinitions &&
-                        is(node.eventDefinitions[0], 'bpmn:MessageEventDefinition') &&
-                        !is(node, 'bpmn:IntermediateThrowEvent') &&
-                        !is(node, 'bpmn:EndEvent')));
+                        is(node.eventDefinitions[0], "bpmn:MessageEventDefinition") &&
+                        !is(node, "bpmn:IntermediateThrowEvent") &&
+                        !is(node, "bpmn:EndEvent")));
             };
             var _loop_3 = function (controlFlowInfo) {
                 controlFlowInfo.activeMessages = [];
@@ -254,22 +262,24 @@ exports.parseModel = function (modelInfo) {
                     controlFlowInfo.nodeList
                         .map(function (nodeId) { return globalNodeMap.get(nodeId); })
                         .forEach(function (e) {
-                        if ((is(e, 'bpmn:Task') || is(e, 'bpmn:SubProcess')) &&
+                        if ((is(e, "bpmn:Task") || is(e, "bpmn:SubProcess")) &&
                             e.loopCharacteristics &&
-                            e.loopCharacteristics.$type === 'bpmn:MultiInstanceLoopCharacteristics') {
-                            controlFlowInfo.multiinstanceActivities.set(e.id, modelInfo.name + ':' + getNodeName(e) + '_Contract');
+                            e.loopCharacteristics.$type ===
+                                "bpmn:MultiInstanceLoopCharacteristics") {
+                            controlFlowInfo.multiinstanceActivities.set(e.id, modelInfo.name + ":" + getNodeName(e) + "_Contract");
                             multiinstanceActivities.push(e.id);
-                            if (is(e, 'bpmn:SubProcess'))
-                                controlFlowInfo.childSubprocesses.set(e.id, modelInfo.name + ':' + getNodeName(e) + '_Contract');
+                            if (is(e, "bpmn:SubProcess"))
+                                controlFlowInfo.childSubprocesses.set(e.id, modelInfo.name + ":" + getNodeName(e) + "_Contract");
                         }
-                        else if (is(e, 'bpmn:CallActivity')) {
+                        else if (is(e, "bpmn:CallActivity")) {
                             controlFlowInfo.callActivities.set(e.id, getNodeName(e));
                             callActivities.push(e.id);
                         }
-                        else if (is(e, 'bpmn:IntermediateCatchEvent') &&
-                            is(e.eventDefinitions[0], 'bpmn:MessageEventDefinition'))
+                        else if (is(e, "bpmn:IntermediateCatchEvent") &&
+                            is(e.eventDefinitions[0], "bpmn:MessageEventDefinition"))
                             catchingMessages.push(e.id);
-                        else if (is(e, 'bpmn:StartEvent') && is(e.eventDefinitions[0], 'bpmn:MessageEventDefinition'))
+                        else if (is(e, "bpmn:StartEvent") &&
+                            is(e.eventDefinitions[0], "bpmn:MessageEventDefinition"))
                             catchingMessages.push(e.id);
                     });
                     // It is also necessary to add boundary events of embedded sub-processes
@@ -277,7 +287,7 @@ exports.parseModel = function (modelInfo) {
                         var start = globalNodeMap.get(nodeId);
                         if (start.eventDefinitions &&
                             start.eventDefinitions[0] &&
-                            is(start.eventDefinitions[0], 'bpmn:MessageEventDefinition') &&
+                            is(start.eventDefinitions[0], "bpmn:MessageEventDefinition") &&
                             controlFlowInfo.nodeList.indexOf(nodeId) < 0) {
                             controlFlowInfo.nodeList.push(nodeId);
                             if (catchingMessages.indexOf(nodeId) < 0)
@@ -292,17 +302,19 @@ exports.parseModel = function (modelInfo) {
                                 controlFlowInfo.edgeList.push(outgoing.id);
                             }
                         if (!node.cancelActivity) {
-                            controlFlowInfo.nonInterruptingEvents.set(node.id, modelInfo.name + ':' + getNodeName(node) + '_Contract');
+                            controlFlowInfo.nonInterruptingEvents.set(node.id, modelInfo.name + ":" + getNodeName(node) + "_Contract");
                             nonInterruptingEvents.push(node.id);
                             controlFlowInfo.nodeList.push(nodeId); // Eager reinsertion
-                            if (node.eventDefinitions[0] && is(node.eventDefinitions[0], 'bpmn:MessageEventDefinition')) {
+                            if (node.eventDefinitions[0] &&
+                                is(node.eventDefinitions[0], "bpmn:MessageEventDefinition")) {
                                 if (controlFlowInfo.activeMessages.indexOf(nodeId) < 0)
                                     controlFlowInfo.activeMessages.push(nodeId);
                                 if (catchingMessages.indexOf(nodeId) < 0)
                                     catchingMessages.push(nodeId);
                             }
                         }
-                        else if (node.eventDefinitions && is(node.eventDefinitions[0], 'bpmn:MessageEventDefinition')) {
+                        else if (node.eventDefinitions &&
+                            is(node.eventDefinitions[0], "bpmn:MessageEventDefinition")) {
                             if (controlFlowInfo.nodeList.indexOf(nodeId) < 0)
                                 controlFlowInfo.nodeList.push(nodeId);
                             if (catchingMessages.indexOf(nodeId) < 0)
@@ -310,22 +322,26 @@ exports.parseModel = function (modelInfo) {
                         }
                     });
                     globalNodeMap.forEach(function (node) {
-                        if (is(node, 'bpmn:SubProcess') && node.triggeredByEvent && controlFlowInfo.self.id === node.$parent.id) {
-                            for (var _i = 0, _a = node.flowElements.filter(function (e) { return is(e, 'bpmn:FlowNode') && is(e, 'bpmn:StartEvent'); }); _i < _a.length; _i++) {
+                        if (is(node, "bpmn:SubProcess") &&
+                            node.triggeredByEvent &&
+                            controlFlowInfo.self.id === node.$parent.id) {
+                            for (var _i = 0, _a = node.flowElements.filter(function (e) { return is(e, "bpmn:FlowNode") && is(e, "bpmn:StartEvent"); }); _i < _a.length; _i++) {
                                 var start = _a[_i];
                                 if (start.isInterrupting == false) {
                                     var parent = globalNodeMap.get(start.$parent.id);
-                                    controlFlowInfo.nonInterruptingEvents.set(start.id, modelInfo.name + ':' + getNodeName(parent) + '_Contract');
+                                    controlFlowInfo.nonInterruptingEvents.set(start.id, modelInfo.name + ":" + getNodeName(parent) + "_Contract");
                                     nonInterruptingEvents.push(start.id);
                                     controlFlowInfo.nodeList.push(start.id);
-                                    if (start.eventDefinitions[0] && is(start.eventDefinitions[0], 'bpmn:MessageEventDefinition')) {
+                                    if (start.eventDefinitions[0] &&
+                                        is(start.eventDefinitions[0], "bpmn:MessageEventDefinition")) {
                                         if (controlFlowInfo.activeMessages.indexOf(start.id) < 0)
                                             controlFlowInfo.activeMessages.push(start.id);
                                         if (catchingMessages.indexOf(start.id) < 0)
                                             catchingMessages.push(start.id);
                                     }
                                 }
-                                if (start.eventDefinitions[0] && is(start.eventDefinitions[0], 'bpmn:MessageEventDefinition')) {
+                                if (start.eventDefinitions[0] &&
+                                    is(start.eventDefinitions[0], "bpmn:MessageEventDefinition")) {
                                     if (controlFlowInfo.nodeList.indexOf(start.id) < 0)
                                         controlFlowInfo.nodeList.push(start.id);
                                     if (catchingMessages.indexOf(start.id) < 0)
@@ -354,7 +370,9 @@ exports.parseModel = function (modelInfo) {
                         controlFlowInfo.nodeIndexMap.set(nodeId, index);
                         globalNodeIndexMap.set(nodeId, index);
                         controlFlowInfo.nodeNameMap.set(nodeId, getNodeName(globalNodeMap.get(nodeId)));
-                        if (node.documentation && node.documentation[0].text && node.documentation[0].text.length > 0)
+                        if (node.documentation &&
+                            node.documentation[0].text &&
+                            node.documentation[0].text.length > 0)
                             extractParameters(node.documentation[0].text, node.id, controlFlowInfo);
                     });
                     controlFlowInfo.edgeList.forEach(function (edgeId, index, array) {
@@ -379,15 +397,15 @@ exports.parseModel = function (modelInfo) {
                                 var cad = node.eventDefinitions[0].$type;
                                 return cad.substring(5, cad.length - 15);
                             }
-                            return 'Default';
+                            return "Default";
                         },
                         allEventTypes: function () {
                             var taken = [];
                             globalNodeMap.forEach(function (node) {
                                 if (node.eventDefinitions &&
                                     node.eventDefinitions[0] &&
-                                    !is(node.eventDefinitions[0], 'bpmn:TerminateEventDefinition') &&
-                                    !is(node.eventDefinitions[0], 'bpmn:MessageEventDefinition')) {
+                                    !is(node.eventDefinitions[0], "bpmn:TerminateEventDefinition") &&
+                                    !is(node.eventDefinitions[0], "bpmn:MessageEventDefinition")) {
                                     var cad = node.eventDefinitions[0].$type;
                                     if (taken.indexOf(cad.substring(5, cad.length - 15)) < 0)
                                         taken.push(cad.substring(5, cad.length - 15));
@@ -399,11 +417,12 @@ exports.parseModel = function (modelInfo) {
                             var taken = [];
                             var candidates = controlFlowInfo.boundaryEvents;
                             controlFlowInfo.nodeList.forEach(function (nodeId) {
-                                if (is(globalNodeMap.get(nodeId), 'bpmn:SubProcess')) {
+                                if (is(globalNodeMap.get(nodeId), "bpmn:SubProcess")) {
                                     var subP = globalControlFlowInfoMap.get(nodeId);
                                     candidates = candidates.concat(subP.boundaryEvents);
                                     subP.sources.forEach(function (id) {
-                                        if (!is(globalNodeMap.get(id), 'bpmn:Subprocess') && candidates.indexOf(id) < 0)
+                                        if (!is(globalNodeMap.get(id), "bpmn:Subprocess") &&
+                                            candidates.indexOf(id) < 0)
                                             candidates.push(id);
                                     });
                                 }
@@ -412,7 +431,7 @@ exports.parseModel = function (modelInfo) {
                                 var evt = globalNodeMap.get(evtId);
                                 if (evt.eventDefinitions &&
                                     evt.eventDefinitions[0] &&
-                                    is(evt.eventDefinitions[0], 'bpmn:MessageEventDefinition'))
+                                    is(evt.eventDefinitions[0], "bpmn:MessageEventDefinition"))
                                     taken.push(evt);
                             });
                             return taken;
@@ -421,10 +440,11 @@ exports.parseModel = function (modelInfo) {
                             var res = [];
                             controlFlowInfo.nodeList.forEach(function (nodeId) {
                                 var node = globalNodeMap.get(nodeId);
-                                if ((is(node, 'bpmn:EndEvent') || is(node, 'bpmn:IntermediateThrowEvent')) &&
+                                if ((is(node, "bpmn:EndEvent") ||
+                                    is(node, "bpmn:IntermediateThrowEvent")) &&
                                     node.eventDefinitions &&
                                     node.eventDefinitions[0] &&
-                                    is(node.eventDefinitions[0], 'bpmn:MessageEventDefinition'))
+                                    is(node.eventDefinitions[0], "bpmn:MessageEventDefinition"))
                                     res.push(nodeId);
                             });
                             return res;
@@ -435,8 +455,10 @@ exports.parseModel = function (modelInfo) {
                                 if (node.eventDefinitions && node.eventDefinitions[0]) {
                                     var cad = node.eventDefinitions[0].$type;
                                     if (cad.substring(5, cad.length - 15) === evType) {
-                                        if ((is(node, 'bpmn:EndEvent') || is(node, 'bpmn:IntermediateThrowEvent')) &&
-                                            (node.$parent.id === subprocId || controlFlowInfo.nodeList.indexOf(node.id) >= 0)) {
+                                        if ((is(node, "bpmn:EndEvent") ||
+                                            is(node, "bpmn:IntermediateThrowEvent")) &&
+                                            (node.$parent.id === subprocId ||
+                                                controlFlowInfo.nodeList.indexOf(node.id) >= 0)) {
                                             res.push(node.id);
                                         }
                                     }
@@ -450,14 +472,17 @@ exports.parseModel = function (modelInfo) {
                                 if (node.eventDefinitions && node.eventDefinitions[0]) {
                                     var cad = node.eventDefinitions[0].$type;
                                     if (cad.substring(5, cad.length - 15) === evType) {
-                                        if (is(node, 'bpmn:StartEvent')) {
+                                        if (is(node, "bpmn:StartEvent")) {
                                             var parent = globalNodeMap.get(node.$parent.id);
-                                            if (parent.triggeredByEvent && parent.$parent.id === subprocId)
+                                            if (parent.triggeredByEvent &&
+                                                parent.$parent.id === subprocId)
                                                 res.unshift(node.id);
-                                            else if (!parent.triggeredByEvent && parent.id === subprocId)
+                                            else if (!parent.triggeredByEvent &&
+                                                parent.id === subprocId)
                                                 res.push(node.id);
                                         }
-                                        else if (is(node, 'bpmn:BoundaryEvent') || is(node, 'bpmn:IntermediateCatchEvent')) {
+                                        else if (is(node, "bpmn:BoundaryEvent") ||
+                                            is(node, "bpmn:IntermediateCatchEvent")) {
                                             if (node.$parent.id === subprocId)
                                                 res.push(node.id);
                                         }
@@ -470,7 +495,7 @@ exports.parseModel = function (modelInfo) {
                             var res = callActivities.concat(multiinstanceActivities);
                             nonInterruptingEvents.forEach(function (evtId) {
                                 var node = globalNodeMap.get(evtId);
-                                res.push(is(node, 'bpmn:StartEvent') ? node.$parent.id : evtId);
+                                res.push(is(node, "bpmn:StartEvent") ? node.$parent.id : evtId);
                             });
                             return res;
                         },
@@ -486,10 +511,10 @@ exports.parseModel = function (modelInfo) {
                             var res = [];
                             controlFlowInfo.nodeList.forEach(function (nodeId) {
                                 var node = globalNodeMap.get(nodeId);
-                                if (is(node, 'bpmn:StartEvent') &&
+                                if (is(node, "bpmn:StartEvent") &&
                                     node.$parent.id === processId &&
                                     node.eventDefinitions &&
-                                    is(node.eventDefinitions[0], 'bpmn:MessageEventDefinition') &&
+                                    is(node.eventDefinitions[0], "bpmn:MessageEventDefinition") &&
                                     globalNodeMap.get(node.$parent.id).triggeredByEvent)
                                     res.push(nodeId);
                             });
@@ -498,18 +523,22 @@ exports.parseModel = function (modelInfo) {
                         getParent: function (nodeId) {
                             // Retrieves the id of the parent
                             var node = globalNodeMap.get(nodeId);
-                            if (is(node, 'bpmn:StartEvent') && node.$parent && globalNodeMap.get(node.$parent.id).triggeredByEvent)
+                            if (is(node, "bpmn:StartEvent") &&
+                                node.$parent &&
+                                globalNodeMap.get(node.$parent.id).triggeredByEvent)
                                 return globalNodeMap.get(node.$parent.id).$parent.id;
-                            if (is(node, 'bpmn:BoundaryEvent') && node.cancelActivity)
+                            if (is(node, "bpmn:BoundaryEvent") && node.cancelActivity)
                                 return node.attachedToRef.id;
                             return node.$parent ? node.$parent.id : nodeId;
                         },
                         getContractName: function (nodeId) {
                             // Retrieves the contract name related to the node.
                             var node = globalNodeMap.get(nodeId);
-                            if (is(node, 'bpmn:StartEvent') && node.$parent && globalNodeMap.get(node.$parent.id).triggeredByEvent)
+                            if (is(node, "bpmn:StartEvent") &&
+                                node.$parent &&
+                                globalNodeMap.get(node.$parent.id).triggeredByEvent)
                                 return node.$parent.id;
-                            if (is(node, 'bpmn:BoundaryEvent'))
+                            if (is(node, "bpmn:BoundaryEvent"))
                                 return node.id;
                             return controlFlowInfo.self.id;
                         },
@@ -518,10 +547,14 @@ exports.parseModel = function (modelInfo) {
                             controlFlowInfo.nodeList
                                 .map(function (nodeId) { return globalNodeMap.get(nodeId); })
                                 .forEach(function (e) {
-                                if (is(e, 'bpmn:SubProcess') ||
+                                if (is(e, "bpmn:SubProcess") ||
                                     callActivities.indexOf(e.id) >= 0 ||
-                                    (nonInterruptingEvents.indexOf(e.id) >= 0 && !is(e, 'bpmn:StartEvent')))
-                                    if (((direct && subprocId !== e.id && e.$parent.id === subprocId) || !direct) &&
+                                    (nonInterruptingEvents.indexOf(e.id) >= 0 &&
+                                        !is(e, "bpmn:StartEvent")))
+                                    if (((direct &&
+                                        subprocId !== e.id &&
+                                        e.$parent.id === subprocId) ||
+                                        !direct) &&
                                         taken.indexOf(e.id) < 0)
                                         taken.push(e.id);
                             });
@@ -529,26 +562,28 @@ exports.parseModel = function (modelInfo) {
                         },
                         isStartingContractEvent: function (eventId, processId) {
                             var evt = globalNodeMap.get(eventId);
-                            if (is(evt, 'bpmn:StartEvent')) {
+                            if (is(evt, "bpmn:StartEvent")) {
                                 if (globalNodeMap.get(evt.$parent.id).triggeredByEvent)
                                     return evt.$parent.id !== processId;
-                                if (is(evt.eventDefinitions[0], 'bpmn:MessageEventDefinition'))
+                                if (is(evt.eventDefinitions[0], "bpmn:MessageEventDefinition"))
                                     return true;
                             }
-                            else if (is(evt, 'bpmn:BoundaryEvent')) {
+                            else if (is(evt, "bpmn:BoundaryEvent")) {
                                 return eventId !== processId;
                             }
-                            else if (is(evt, 'bpmn:IntermediateCatchEvent') &&
-                                is(evt.eventDefinitions[0], 'bpmn:MessageEventDefinition'))
+                            else if (is(evt, "bpmn:IntermediateCatchEvent") &&
+                                is(evt.eventDefinitions[0], "bpmn:MessageEventDefinition"))
                                 return true;
                             return false;
                         },
                         isInterrupting: function (eventId) {
                             // True if an event is interrupting
                             var node = globalNodeMap.get(eventId);
-                            if (is(node, 'bpmn:StartEvent') && node.$parent && globalNodeMap.get(node.$parent.id).triggeredByEvent)
+                            if (is(node, "bpmn:StartEvent") &&
+                                node.$parent &&
+                                globalNodeMap.get(node.$parent.id).triggeredByEvent)
                                 return node.isInterrupting != false;
-                            if (is(node, 'bpmn:BoundaryEvent'))
+                            if (is(node, "bpmn:BoundaryEvent"))
                                 return node.cancelActivity != false;
                             return false;
                         },
@@ -568,62 +603,62 @@ exports.parseModel = function (modelInfo) {
                                 }
                             else
                                 bitarray[0] = 1;
-                            var result = '0b';
+                            var result = "0b";
                             for (var i = bitarray.length - 1; i >= 0; i--)
-                                result += bitarray[i] ? '1' : '0';
+                                result += bitarray[i] ? "1" : "0";
                             return new bignumber_js_1.default(result).toFixed();
                         },
                         postMarking: function (nodeId) {
                             var node = globalNodeMap.get(nodeId);
                             var bitarray = [];
-                            var result = '0b';
+                            var result = "0b";
                             if (node.outgoing)
                                 for (var _i = 0, _a = node.outgoing; _i < _a.length; _i++) {
                                     var outgoing = _a[_i];
                                     bitarray[controlFlowInfo.edgeIndexMap.get(outgoing.id)] = 1;
                                 }
                             else
-                                result = '0';
+                                result = "0";
                             for (var i = bitarray.length - 1; i >= 0; i--)
-                                result += bitarray[i] ? '1' : '0';
+                                result += bitarray[i] ? "1" : "0";
                             return new bignumber_js_1.default(result).toFixed();
                         },
                         subprocessNodeMarking: function (subprocessId) {
                             var bitarray = [];
                             globalNodeMap.forEach(function (node) {
                                 if (node.$parent && node.$parent.id === subprocessId) {
-                                    if (is(node, 'bpmn:Task'))
+                                    if (is(node, "bpmn:Task"))
                                         bitarray[globalNodeIndexMap.get(node.id)] = 1;
                                     else if (!globalNodeMap.get(subprocessId).triggeredByEvent &&
                                         node.eventDefinitions &&
                                         node.eventDefinitions[0] &&
-                                        is(node.eventDefinitions[0], 'bpmn:MessageEventDefinition'))
+                                        is(node.eventDefinitions[0], "bpmn:MessageEventDefinition"))
                                         bitarray[globalNodeIndexMap.get(node.id)] = 1;
                                 }
                             });
-                            var result = bitarray.length > 0 ? '0b' : 0;
+                            var result = bitarray.length > 0 ? "0b" : 0;
                             for (var i = bitarray.length - 1; i >= 0; i--)
-                                result += bitarray[i] ? '1' : '0';
+                                result += bitarray[i] ? "1" : "0";
                             return new bignumber_js_1.default(result).toFixed();
                         },
                         subprocessStartMarking: function (subprocessId) {
                             var toSearch = globalNodeMap.get(subprocessId);
                             var bitarray = [];
-                            var result = '0b';
-                            if (is(toSearch, 'bpmn:BoundaryEvent')) {
+                            var result = "0b";
+                            if (is(toSearch, "bpmn:BoundaryEvent")) {
                                 for (var _i = 0, _a = toSearch.outgoing; _i < _a.length; _i++) {
                                     var outgoing = _a[_i];
                                     bitarray[controlFlowInfo.edgeIndexMap.get(outgoing.id)] = 1;
                                 }
                             }
                             else {
-                                for (var _b = 0, _c = toSearch.flowElements.filter(function (e) { return is(e, 'bpmn:FlowNode') && is(e, 'bpmn:StartEvent'); }); _b < _c.length; _b++) {
+                                for (var _b = 0, _c = toSearch.flowElements.filter(function (e) { return is(e, "bpmn:FlowNode") && is(e, "bpmn:StartEvent"); }); _b < _c.length; _b++) {
                                     var node = _c[_b];
                                     if (node.$parent.id === subprocessId)
                                         if (!globalNodeMap.get(node.$parent.id).triggeredByEvent &&
                                             node.eventDefinitions &&
                                             node.eventDefinitions[0] &&
-                                            is(node.eventDefinitions[0], 'bpmn:MessageEventDefinition'))
+                                            is(node.eventDefinitions[0], "bpmn:MessageEventDefinition"))
                                             bitarray[0] = 1;
                                         else if (node.outgoing)
                                             for (var _d = 0, _e = node.outgoing; _d < _e.length; _d++) {
@@ -633,14 +668,14 @@ exports.parseModel = function (modelInfo) {
                                 }
                             }
                             for (var i = bitarray.length - 1; i >= 0; i--)
-                                result += bitarray[i] ? '1' : '0';
+                                result += bitarray[i] ? "1" : "0";
                             return new bignumber_js_1.default(result).toFixed();
                         },
                         subprocessMarking: function (subprocessId) {
                             var bitarray = [];
-                            var result = '0b';
+                            var result = "0b";
                             var localInfo = globalControlFlowInfoMap.get(subprocessId);
-                            if (is(globalNodeMap.get(controlFlowInfo.self.id), 'bpmn:BoundaryEvent') &&
+                            if (is(globalNodeMap.get(controlFlowInfo.self.id), "bpmn:BoundaryEvent") &&
                                 multiinstanceActivities.indexOf(subprocessId) < 0) {
                                 var parentInfo = globalControlFlowInfoMap.get(controlFlowInfo.self.$parent.id);
                                 localInfo.edgeList.forEach(function (edgeId) {
@@ -653,34 +688,36 @@ exports.parseModel = function (modelInfo) {
                                 });
                             }
                             for (var i = bitarray.length - 1; i >= 0; i--)
-                                result += bitarray[i] ? '1' : '0';
+                                result += bitarray[i] ? "1" : "0";
                             return new bignumber_js_1.default(result).toFixed();
                         },
                         extendedSubprocessMarking: function (subprocessId, orCondition) {
                             var candidates = callActivities.concat(multiinstanceActivities.concat(nonInterruptingEvents));
-                            var res = orCondition ? '|| (' : '\u0026' + '\u0026' + '(';
+                            var res = orCondition ? "|| (" : "\u0026" + "\u0026" + "(";
                             candidates.forEach(function (nodeId) {
                                 var node = globalNodeMap.get(nodeId);
                                 if (node.$parent.id === subprocessId) {
-                                    res += getNodeName(node) + '_activeInstances != 0 || ';
+                                    res += getNodeName(node) + "_activeInstances != 0 || ";
                                 }
                             });
-                            return res.length < 10 ? '' : res.substring(0, res.length - 4) + ')';
+                            return res.length < 10
+                                ? ""
+                                : res.substring(0, res.length - 4) + ")";
                         },
                         flowEdgeIndex: function (flowEdgeId) {
                             var bitarray = [];
                             bitarray[controlFlowInfo.edgeIndexMap.get(flowEdgeId)] = 1;
-                            var result = '0b';
+                            var result = "0b";
                             for (var i = bitarray.length - 1; i >= 0; i--)
-                                result += bitarray[i] ? '1' : '0';
+                                result += bitarray[i] ? "1" : "0";
                             return new bignumber_js_1.default(result).toFixed();
                         },
                         flowNodeIndex: function (flowNodeId) {
                             var bitarray = [];
                             bitarray[globalNodeIndexMap.get(flowNodeId)] = 1;
-                            var result = '0b';
+                            var result = "0b";
                             for (var i = bitarray.length - 1; i >= 0; i--)
-                                result += bitarray[i] ? '1' : '0';
+                                result += bitarray[i] ? "1" : "0";
                             return new bignumber_js_1.default(result).toFixed();
                         },
                         nodeRealIndex: function (nodeId) {
@@ -690,7 +727,7 @@ exports.parseModel = function (modelInfo) {
                             var event = globalNodeMap.get(eventId);
                             if (event.incoming) {
                                 var node = event.incoming[0].sourceRef;
-                                return is(node, 'bpmn:EventBasedGateway');
+                                return is(node, "bpmn:EventBasedGateway");
                             }
                             return false;
                         },
@@ -699,7 +736,7 @@ exports.parseModel = function (modelInfo) {
                             var res = [];
                             if (event.incoming) {
                                 var node = event.incoming[0].sourceRef;
-                                if (is(node, 'bpmn:EventBasedGateway')) {
+                                if (is(node, "bpmn:EventBasedGateway")) {
                                     for (var _i = 0, _a = node.outgoing; _i < _a.length; _i++) {
                                         var outgoing = _a[_i];
                                         if (outgoing.targetRef.id !== nodeId)
@@ -714,33 +751,35 @@ exports.parseModel = function (modelInfo) {
                             var event = globalNodeMap.get(eventId);
                             var node = event.incoming[0].sourceRef;
                             var bitarray = [];
-                            var result = '0b';
+                            var result = "0b";
                             if (node.outgoing)
                                 for (var _i = 0, _a = node.outgoing; _i < _a.length; _i++) {
                                     var outgoing = _a[_i];
                                     bitarray[controlFlowInfo.edgeIndexMap.get(outgoing.id)] = 1;
                                 }
                             else
-                                result = '0';
+                                result = "0";
                             for (var i = bitarray.length - 1; i >= 0; i--)
-                                result += bitarray[i] ? '1' : '0';
+                                result += bitarray[i] ? "1" : "0";
                             return new bignumber_js_1.default(result).toFixed();
                         },
                         globalDeclarations: function () {
                             if (controlFlowInfo.globalParameters.length > 0)
                                 return controlFlowInfo.globalParameters;
                             else
-                                return '';
+                                return "";
                         },
                         getOracleFunction: function (nodeId) {
                             if (controlFlowInfo.oracleTaskMap.has(nodeId))
                                 return controlFlowInfo.oracleInfo.get(controlFlowInfo.oracleTaskMap.get(nodeId)).functionName;
-                            return '';
+                            return "";
                         },
                         nodeParameters: function (nodeId) {
                             var node = globalNodeMap.get(nodeId);
-                            if (node.documentation && node.documentation[0].text && node.documentation[0].text.length > 0) {
-                                if (extractParameters(node.documentation[0].text, nodeId, null).get('input').length > 0)
+                            if (node.documentation &&
+                                node.documentation[0].text &&
+                                node.documentation[0].text.length > 0) {
+                                if (extractParameters(node.documentation[0].text, nodeId, null).get("input").length > 0)
                                     return true;
                                 return false;
                             }
@@ -748,44 +787,60 @@ exports.parseModel = function (modelInfo) {
                         },
                         typeParameters: function (nodeId, isInput, hasPreviousParameter) {
                             var node = globalNodeMap.get(nodeId);
-                            var res = '';
-                            if (node.documentation && node.documentation[0].text && node.documentation[0].text.length > 0) {
+                            var res = "";
+                            if (node.documentation &&
+                                node.documentation[0].text &&
+                                node.documentation[0].text.length > 0) {
                                 var localParams = isInput
-                                    ? extractParameters(node.documentation[0].text, nodeId, null).get('input')
-                                    : extractParameters(node.documentation[0].text, nodeId, null).get('output');
+                                    ? extractParameters(node.documentation[0].text, nodeId, null).get("input")
+                                    : extractParameters(node.documentation[0].text, nodeId, null).get("output");
                                 if (localParams.length > 0) {
                                     res = localParams[0];
                                     for (var i = 2; i < localParams.length; i += 2)
-                                        res += ', ' + localParams[i];
+                                        res += ", " + localParams[i];
                                 }
                             }
-                            return hasPreviousParameter && res.length > 0 ? ', ' + res : res;
+                            return hasPreviousParameter && res.length > 0
+                                ? ", " + res
+                                : res;
                         },
                         concatParameters: function (nodeId, isInput, hasType, hasPreviousParameter) {
                             var node = globalNodeMap.get(nodeId);
-                            var res = '';
-                            if (node.documentation && node.documentation[0].text && node.documentation[0].text.length > 0) {
+                            var res = "";
+                            if (node.documentation &&
+                                node.documentation[0].text &&
+                                node.documentation[0].text.length > 0) {
                                 var localParams = isInput
-                                    ? extractParameters(node.documentation[0].text, nodeId, null).get('input')
-                                    : extractParameters(node.documentation[0].text, nodeId, null).get('output');
+                                    ? extractParameters(node.documentation[0].text, nodeId, null).get("input")
+                                    : extractParameters(node.documentation[0].text, nodeId, null).get("output");
                                 if (localParams.length > 0) {
-                                    res = hasType ? localParams[0] + ' ' + localParams[1] : localParams[1];
+                                    res = hasType
+                                        ? localParams[0] + " " + localParams[1]
+                                        : localParams[1];
                                     for (var i = 2; i < localParams.length; i += 2)
-                                        res += ',' + (hasType ? localParams[i] + ' ' + localParams[i + 1] : localParams[i + 1]);
+                                        res +=
+                                            "," +
+                                                (hasType
+                                                    ? localParams[i] + " " + localParams[i + 1]
+                                                    : localParams[i + 1]);
                                 }
                             }
-                            return hasPreviousParameter && res.length > 0 ? ', ' + res : res;
+                            return hasPreviousParameter && res.length > 0
+                                ? ", " + res
+                                : res;
                         },
                         nodeFunctionBody: function (nodeId) {
                             var node = globalNodeMap.get(nodeId);
                             if (node.script) {
-                                return node.script.split('->');
+                                return node.script.split("->");
                             }
-                            else if (node.documentation && node.documentation[0].text && node.documentation[0].text.length > 0) {
-                                return extractParameters(node.documentation[0].text, nodeId, null).get('body');
+                            else if (node.documentation &&
+                                node.documentation[0].text &&
+                                node.documentation[0].text.length > 0) {
+                                return extractParameters(node.documentation[0].text, nodeId, null).get("body");
                             }
                             else
-                                return '';
+                                return "";
                         },
                         getCondition: function (flowEdge) {
                             return flowEdge.conditionExpression
@@ -794,7 +849,7 @@ exports.parseModel = function (modelInfo) {
                                     ? flowEdge.name
                                     : flowEdge.id;
                         },
-                        is: is,
+                        is: is
                     };
                     var localSolidity = bpmn2solTemplate(codeGenerationInfo);
                     // Code for using the WorkList template
@@ -803,7 +858,9 @@ exports.parseModel = function (modelInfo) {
                     hasDefault = false;
                     controlFlowInfo.nodeList.forEach(function (nodeId) {
                         var node = globalNodeMap.get(nodeId);
-                        if (is(node, 'bpmn:Task') && !is(node, 'bpmn:ServiceTask') && !is(node, 'bpmn:ScriptTask')) {
+                        if (is(node, "bpmn:Task") &&
+                            !is(node, "bpmn:ServiceTask") &&
+                            !is(node, "bpmn:ScriptTask")) {
                             if (controlFlowInfo.localParameters.has(nodeId) &&
                                 controlFlowInfo.localParameters.get(nodeId).length > 0) {
                                 userTaskList.push(nodeId);
@@ -814,40 +871,44 @@ exports.parseModel = function (modelInfo) {
                         }
                     });
                     if (hasDefault || userTaskList.length == 0)
-                        userTaskList.push('defaultId');
+                        userTaskList.push("defaultId");
                     var workListGenerationInfo = {
                         nodeList: userTaskList,
                         parameterInfo: parameterInfo,
                         nodeMap: globalNodeMap,
                         processId: function () { return controlFlowInfo.self.id; },
                         nodeName: function (nodeId) {
-                            if (nodeId === 'defaultId')
-                                return 'DefaultTask';
+                            if (nodeId === "defaultId")
+                                return "DefaultTask";
                             return getNodeName(globalNodeMap.get(nodeId));
                         },
                         getParameterType: function (nodeId, isType) {
-                            var res = '';
+                            var res = "";
                             var localParams = parameterInfo.get(nodeId);
                             if (localParams && localParams.length > 0) {
                                 res = isType ? localParams[0].type : localParams[0].name;
                                 for (var i = 1; i < localParams.length; i++)
-                                    res += isType ? ', ' + localParams[i].type : ', ' + localParams[i].name;
+                                    res += isType
+                                        ? ", " + localParams[i].type
+                                        : ", " + localParams[i].name;
                             }
-                            return res.length > 0 ? ', ' + res : res;
+                            return res.length > 0 ? ", " + res : res;
                         },
                         getParameters: function (nodeId, hasType) {
-                            var res = '';
+                            var res = "";
                             var localParams = parameterInfo.get(nodeId);
                             if (localParams && localParams.length > 0) {
-                                res = hasType ? localParams[0].type + ' ' + localParams[0].name : localParams[0].name;
+                                res = hasType
+                                    ? localParams[0].type + " " + localParams[0].name
+                                    : localParams[0].name;
                                 for (var i = 1; i < localParams.length; i++)
                                     res += hasType
-                                        ? ', ' + localParams[i].type + ' ' + localParams[i].name
-                                        : ', ' + localParams[i].name;
+                                        ? ", " + localParams[i].type + " " + localParams[i].name
+                                        : ", " + localParams[i].name;
                             }
-                            return res.length > 0 ? ', ' + res : res;
+                            return res.length > 0 ? ", " + res : res;
                         },
-                        is: is,
+                        is: is
                     };
                     var workListSolidity = workList2solTemplate(workListGenerationInfo);
                     modelInfo.solidity += localSolidity;
@@ -869,7 +930,10 @@ exports.parseModel = function (modelInfo) {
                 _loop_3(controlFlowInfo);
             }
             //////////////////////////////////////////////////////////////////////////////////
-            var entryContractName = modelInfo.name + ':' + (proc.name ? proc.name.replace(/\s+/g, '_') : proc.id) + '_Contract';
+            var entryContractName = modelInfo.name +
+                ":" +
+                (proc.name ? proc.name.replace(/\s+/g, "_") : proc.id) +
+                "_Contract";
             modelInfo.entryContractName = entryContractName;
             resolve();
         })

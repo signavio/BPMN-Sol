@@ -1,7 +1,6 @@
 import { workers } from "cluster";
 import { Router, response } from "express";
 import * as solc from "solc";
-import * as Web3 from "web3";
 import * as BigNumber from "bignumber.js";
 import { ModelInfo } from "./definitions";
 import { parseModel } from "./models.parsers";

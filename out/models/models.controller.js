@@ -10,9 +10,9 @@ var validExecution = false;
 exports.bpmn2sol = function (xml) {
     return new Promise(function (resolve, reject) {
         var modelInfo = xml;
-        var sol = '';
-        var byteCode = '';
-        var abi = '';
+        var sol = "";
+        var byteCode = "";
+        var abi = "";
         var cont = models_parsers_1.parseModel(modelInfo);
         return cont.then(function () {
             var input = {};
@@ -35,7 +35,7 @@ exports.bpmn2sol = function (xml) {
             });
             var output = solc.compile({ sources: input }, 1);
             if (Object.keys(output.contracts).length === 0) {
-                console.log('COMPILATION ERROR IN SMART CONTRACTS');
+                console.log("COMPILATION ERROR IN SMART CONTRACTS");
                 return;
             }
             Object.keys(output.contracts).forEach(function (key) { });

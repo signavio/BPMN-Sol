@@ -24,7 +24,7 @@ const xml = {
 
 When this object is passed to the `compile()` function it returns an object with three values `Solidity code`,`ByteCode`, `ABI`
 
-For example, </n>
+For example </n>
 ```
 const contract = compile(xml).then(contract => {
  console.log(contract);

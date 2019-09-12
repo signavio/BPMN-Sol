@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./out/index.js",
+    "start": "node ./dist/index.js",
     "build": "tsc",
-    "test": "mocha ./out/tests/test.js",
+    "test": "mocha ./dist/tests/test.js",
     "compile": "node ./node_modules/typescript/bin/tsc -p ./src",
     "compiletests": "node ./node_modules/typescript/bin/tsc -p ./tests",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",

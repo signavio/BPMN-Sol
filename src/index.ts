@@ -10,7 +10,3 @@ export let compile = xml =>
   new Promise((resolve, reject) => {
     resolve(bpmn2sol(xml));
   });
-
-// const contract = compile(xml).then(contract => {
-//   console.log(contract);
-// });

@@ -2,7 +2,6 @@
 	"compilerOptions": {
 		"module": "commonjs",
 		"target": "es5",
-		"declaration":true,
 		"outDir": "./dist",
 		"lib": [
 			"es6"
@@ -10,7 +9,6 @@
 		"sourceMap": true
 	},
 	"exclude": [
-		"node_modules",
-		"./dist"
+		"node_modules"
 	]
 }

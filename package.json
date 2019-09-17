@@ -1,5 +1,5 @@
 {
-  "name": "BPMN-Sol",
+  "name": "bpmn-sol",
   "description": "BPMN to Solidity compiler",
   "version": "0.0.1",
   "scripts": {
@@ -11,30 +11,29 @@
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json"
   },
+  "keywords": [
+    "BPMN",
+    "Blockchain",
+    "Ethereum"
+  ],
+  "author": "Gowtham Mohan",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/signavio/BPMN-Sol/issues"
+  },
+  "homepage": "https://github.com/signavio/BPMN-Sol/",
   "dependencies": {
     "bignumber.js": "^4.0.1",
-    "body-parser": "^1.19.0",
     "bpmn-moddle": "^6.0.0",
-    "cookie-parser": "~1.3.5",
-    "cors": "^2.8.3",
-    "debug": "^4.1.1",
     "ejs": "^2.5.6",
-    "express": "4.17.1",
-    "morgan": "^1.9.1",
-    "serve-favicon": "^2.5.0",
     "solc": "^0.4.10"
   },
   "devDependencies": {
-    "@types/body-parser": "^1.16.1",
-    "@types/cookie-parser": "^1.3.30",
     "@types/debug": "^0.0.29",
-    "@types/express": "^4.0.35",
     "@types/marked": "^0.0.28",
     "@types/mocha": "^2.2.40",
-    "@types/morgan": "^1.7.32",
     "@types/node": "^7.0.10",
     "@types/power-assert": "^1.4.29",
-    "@types/serve-favicon": "^2.2.28",
     "browser-sync": "^2.18.8",
     "marked": "^0.7.0",
     "mocha": "^6.2.0",

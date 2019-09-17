@@ -1,16 +1,7 @@
-import { workers } from "cluster";
-import { Router, response } from "express";
 import * as solc from "solc";
-import * as BigNumber from "bignumber.js";
 import { ModelInfo } from "./definitions";
 import { parseModel } from "./models.parsers";
 import { modelStore } from "./models.store";
-import { log } from "util";
-
-const activityContractMap: Map<string, Array<string>> = new Map();
-const runningActivities: Map<string, any> = new Map(); // contract-activity
-const enabledTasks: Map<string, any> = new Map();
-const validExecution = false;
 
 export let bpmn2sol = xml =>
   new Promise((resolve, reject) => {

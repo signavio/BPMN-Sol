@@ -9,7 +9,15 @@ To install the package run the following command.
 
 ```
 npm install bpmn-sol
+
 ```
+
+You can require the package by using 
+
+```JavaScript
+const compiler = require('bpmn-sol)
+```
+
 
 
 ## Usage 
@@ -26,7 +34,7 @@ When this object is passed to the `compile()` function it returns an object with
 
 For example </n>
 ```JavaScript
-const contract = compile(xml).then(contract => {
+const contract = compiler.compile(xml).then(contract => {
  console.log(contract);
 })
 ```

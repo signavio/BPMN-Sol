@@ -50,5 +50,5 @@
     "typescript": "^2.2.1",
     "xml2js": "^0.4.19"
   },
-  "files": ["dist/**/*"]
+  "files": ["dist/**/*","templates/**"]
 }

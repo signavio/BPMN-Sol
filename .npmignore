@@ -1,4 +1,5 @@
 src
+templates
 tsconfig.json
 tslint.json
 .prettierrc

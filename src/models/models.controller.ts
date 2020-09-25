@@ -35,15 +35,13 @@ export let bpmn2sol = xml =>
       Object.keys(input).forEach(key => {
         sol = input[key];
       });
-
-      const output = solc.compile({ sources: input }, 1);
+      const output = solc.compile({ sources: input });
 
       if (Object.keys(output.contracts).length === 0) {
         console.log("COMPILATION ERROR IN SMART CONTRACTS");
         return;
       }
 
-      Object.keys(output.contracts).forEach(key => {});
       modelInfo.contracts = output.contracts;
 
       byteCode = output.contracts[modelInfo.entryContractName].bytecode;
@@ -51,3 +49,5 @@ export let bpmn2sol = xml =>
       resolve({ Solidity: sol, Bytecode: byteCode, ABI: abi });
     });
   });
+
+

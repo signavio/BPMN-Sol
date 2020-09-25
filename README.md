@@ -8,7 +8,8 @@
 
 Previously, with the version `v0.0.3` of the `bpmn-sol` it was not possible to compile a business process model with multiple XOR gateways and multiple script tasks. When tried to compile such a diagram, the user would get a compilation error.
 
-Now with the new version `v1.0` the functionality to compile a business process model with multiple script tasks and gateways is supported. However, this comes with an additional requirement with respect to modelling the diagram. Please find below the modelling requirements.
+Now with the new version `v1.0` the functionality to compile a business process model with multiple script tasks and gateways is supported.
+This comes with an additional requirement with respect to modelling the diagram. Please find below the modelling requirements.
 
 ## Modelling Requirements
 

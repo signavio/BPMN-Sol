@@ -11,7 +11,7 @@ export let bpmn2sol = xml =>
     let abi = "";
     const cont = parseModel(modelInfo);
     return cont.then(() => {
-      let input = {};
+      const input = {};
       input[modelInfo.name] = modelInfo.solidity;
 
       const activityNames = [];

@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "start": "node ./dist/index.js",
+    "start": "ts-node src/index.ts",
     "build": "tsc",
     "test": "mocha ./dist/tests/test.js",
     "compile": "node ./node_modules/typescript/bin/tsc -p ./src",
@@ -35,7 +35,7 @@
     "ejs": "^2.5.6",
     "kind-of": "^6.0.3",
     "minimist": "^1.2.5",
-    "solc": "^0.4.10"
+    "solc": "0.4.14"
   },
   "devDependencies": {
     "@types/debug": "^0.0.29",

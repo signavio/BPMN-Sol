@@ -1,7 +1,21 @@
 # BPMN-Sol
+
 [![CircleCI](https://circleci.com/gh/signavio/BPMN-Sol/tree/master.svg?style=svg&circle-token=ef21a374de1b68ab12004774d76abcb3512868f3)](https://circleci.com/gh/signavio/BPMN-Sol/tree/master)
 
 `BPMN-Sol` is a compiler to convert BPMN 2.0 xml to solidity smart contract.
+
+## Changes in the new version
+
+Previously, with the version `v0.0.3` of the `bpmn-sol` it was not possible to compile a business process model with multiple XOR gateways and multiple script tasks. When tried to compile such a diagram, the user would get a compilation error.
+
+Now with the new version `v1.0` the functionality to compile a business process model with multiple script tasks and gateways is supported. However, this comes with an additional requirement with respect to modelling the diagram. Please find below the modelling requirements.
+
+## Modelling Requirements
+
+In order to support the compilation of a business process model with multiple script tasks or multiple gateways, the `bpmn-sol` compiler expects the diagrams to be modelled in a specific way.
+
+- All the gateways should be named. If the gateway is not named then the compiler assigns the id of the node to the gateway. But it is encouraged to name the gateways.
+- All the sequence flows emerging out a gateway has to be named. This is highly important for the compiler to parse the diagram. Failure to specify the names for the sequence flows emerging out of the gateway will result in compilation error.
 
 ## Installation
 
@@ -12,15 +26,14 @@ npm install bpmn-sol
 
 ```
 
-You can require the package by using 
+You can require the package by using
 
 ```JavaScript
 const compiler = require('bpmn-sol)
 ```
 
+## Usage
 
-
-## Usage 
 The BPMN 2.0 xml can be converted to solidity using the `compile()` function. The xml to be passed should be an object with the xml value and a name for the smart contract. It has to be in below format.
 
 ```JavaScript
@@ -33,24 +46,27 @@ const xml = {
 When this object is passed to the `compile()` function it returns an object with three values `Solidity code`,`ByteCode`, `ABI`
 
 For example </n>
+
 ```JavaScript
 const contract = compiler.compile(xml).then(contract => {
  console.log(contract);
 })
 ```
+
 This logs the output object.
 
 ## Acknowledgments
-The *BPMN-Sol* is utilizing/forking the compiler of the [Caterpillar](https://github.com/orlenyslp/Caterpillar) engine.
+
+The _BPMN-Sol_ is utilizing/forking the compiler of the [Caterpillar](https://github.com/orlenyslp/Caterpillar) engine.
 We thank the Caterpillar creator for his great work.
 
 ## Contribution
 
 Contributions are welcome. Make sure you run the tests before creating a pull request and add test cases that cover the contributed code.
 
-To build *bpmn-sol* from its source files run ``npm run build``.
+To build _bpmn-sol_ from its source files run `npm run build`.
 
 ## Authors
-* **Gowtham Mohan**
-* Timotheus Kampik
 
+- **Gowtham Mohan**
+- Timotheus Kampik

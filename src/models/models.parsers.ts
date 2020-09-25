@@ -257,8 +257,11 @@ let extractParameters = (cad, nodeId, controlFlowInfo) => {
   return resMap;
 };
 
-let getNodeName = (node: any) =>
-  node.name ? node.name.replace(/\s+/g, "_") : node.id;
+let getNodeName = (node: any) => {
+  const regex = /-/gi
+  return node.name ? node.name.replace(/\s+/g, "_") : (node.id).replace(regex, '_');
+}
+
 
 export let parseModel = (modelInfo: ModelInfo) =>
   new Promise((resolve, reject) => {

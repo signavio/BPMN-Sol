@@ -49,5 +49,3 @@ export let bpmn2sol = xml =>
       resolve({ Solidity: sol, Bytecode: byteCode, ABI: abi });
     });
   });
-
-

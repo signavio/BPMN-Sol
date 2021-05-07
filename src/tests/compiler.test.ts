@@ -1,4 +1,4 @@
-import { compile } from "../index";
+import compile from "../index";
 import xml from "./testXML";
 
 describe("bpmn compilers", () => {

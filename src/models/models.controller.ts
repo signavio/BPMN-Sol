@@ -3,7 +3,7 @@ import { ModelInfo } from "./definitions";
 import { parseModel } from "./models.parsers";
 import { modelStore } from "./models.store";
 
-export let bpmn2sol = xml =>
+export default xml =>
   new Promise((resolve, reject) => {
     const modelInfo: ModelInfo = xml as ModelInfo;
     let sol = "";
@@ -29,6 +29,7 @@ export let bpmn2sol = xml =>
           reject({
             message: `ERROR: Process model '${activityName}' not found`
           });
+          return
         }
         input[activityName] = modelStore.get(activityName).solidity;
       });
@@ -40,6 +41,7 @@ export let bpmn2sol = xml =>
 
       if (Object.keys(output.contracts).length === 0) {
         reject({ message: "Compilation error in smart contract" });
+        return
       }
 
       modelInfo.contracts = output.contracts;
@@ -49,3 +51,4 @@ export let bpmn2sol = xml =>
       resolve({ Solidity: sol, Bytecode: byteCode, ABI: abi });
     });
   });
+

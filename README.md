@@ -8,8 +8,10 @@
 
 Previously, with the version `v0.0.3` of the `bpmn-sol` it was not possible to compile a business process model with multiple XOR gateways and multiple script tasks. When tried to compile such a diagram, the user would get a compilation error.
 
-Now with the new version `v1.0` the functionality to compile a business process model with multiple script tasks and gateways is supported.
+With the version `v1.0` the functionality to compile a business process model with multiple script tasks and gateways is supported.
 This comes with an additional requirement with respect to modelling the diagram. Please find below the modelling requirements.
+
+In the new version of `v2.0.0` the compiler is a default import.
 
 ## Modelling Requirements
 
@@ -30,7 +32,7 @@ npm install bpmn-sol
 You can require the package by using
 
 ```JavaScript
-const compiler = require('bpmn-sol)
+import compile from 'bpmn-sol'
 ```
 
 ## Usage
@@ -49,9 +51,13 @@ When this object is passed to the `compile()` function it returns an object with
 For example </n>
 
 ```JavaScript
-const contract = compiler.compile(xml).then(contract => {
- console.log(contract);
-})
+compile(xml)
+ .then(contract => {
+  console.log(contract);
+  })
+ .catch(error => {
+   console.log(error)
+  })
 ```
 
 This logs the output object.

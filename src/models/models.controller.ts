@@ -26,7 +26,9 @@ export let bpmn2sol = xml =>
       );
       activityNames.forEach(activityName => {
         if (!modelStore.has(activityName)) {
-          reject({ message: `ERROR: Process model '${activityName}' not found` });
+          reject({
+            message: `ERROR: Process model '${activityName}' not found`
+          });
         }
         input[activityName] = modelStore.get(activityName).solidity;
       });

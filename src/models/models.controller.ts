@@ -26,8 +26,7 @@ export let bpmn2sol = xml =>
       );
       activityNames.forEach(activityName => {
         if (!modelStore.has(activityName)) {
-          console.log(`ERROR: Process model '${activityName}' not found`);
-          return;
+          reject({ message: `ERROR: Process model '${activityName}' not found` });
         }
         input[activityName] = modelStore.get(activityName).solidity;
       });
@@ -38,8 +37,7 @@ export let bpmn2sol = xml =>
       const output = solc.compile({ sources: input });
 
       if (Object.keys(output.contracts).length === 0) {
-        console.log("COMPILATION ERROR IN SMART CONTRACTS");
-        return;
+        reject({ message: "Compilation error in smart contract" });
       }
 
       modelInfo.contracts = output.contracts;

@@ -29,7 +29,7 @@ export default xml =>
           reject({
             message: `ERROR: Process model '${activityName}' not found`
           });
-          return
+          return;
         }
         input[activityName] = modelStore.get(activityName).solidity;
       });
@@ -41,7 +41,7 @@ export default xml =>
 
       if (Object.keys(output.contracts).length === 0) {
         reject({ message: "Compilation error in smart contract" });
-        return
+        return;
       }
 
       modelInfo.contracts = output.contracts;
@@ -51,4 +51,3 @@ export default xml =>
       resolve({ Solidity: sol, Bytecode: byteCode, ABI: abi });
     });
   });
-

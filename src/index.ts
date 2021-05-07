@@ -3,8 +3,8 @@ import bpmn2sol from "./models/models.controller";
 export default xml =>
   new Promise((resolve, reject) => {
     bpmn2sol(xml)
-      .then((contract) => resolve(contract))
-      .catch((error) => reject(error))
+      .then(contract => resolve(contract))
+      .catch(error => reject(error));
   });
 
 /**

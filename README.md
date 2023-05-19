@@ -1,4 +1,5 @@
 # BPMN-Sol
+[![REUSE status](https://api.reuse.software/badge/github.com/signavio/BPMN-Sol)](https://api.reuse.software/info/github.com/signavio/BPMN-Sol)
 
 [![CircleCI](https://circleci.com/gh/signavio/BPMN-Sol/tree/master.svg?style=svg&circle-token=ef21a374de1b68ab12004774d76abcb3512868f3)](https://circleci.com/gh/signavio/BPMN-Sol/tree/master)
 
